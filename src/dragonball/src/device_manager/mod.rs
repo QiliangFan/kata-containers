@@ -584,7 +584,7 @@ impl DeviceManager {
         &mut self,
         dmesg_fifo: Option<Box<dyn io::Write + Send>>,
         com1_sock_path: Option<String>,
-        _ctx: &mut DeviceOpContext,
+        ctx: &mut DeviceOpContext,
     ) -> std::result::Result<(), StartMicroVmError> {
         // Connect serial ports to the console and dmesg_fifo.
         self.set_guest_kernel_log_stream(dmesg_fifo)
@@ -595,7 +595,7 @@ impl DeviceManager {
             Some(path) => {
                 if path == "None" {
                     info!(
-                        _ctx.logger(),
+                        ctx.logger(),
                         "This token is used to create stdio console. (means not to create sock console)"
                     );
                 } else if let Some(legacy_manager) = self.legacy_manager.as_ref() {
