@@ -584,29 +584,22 @@ impl DeviceManager {
         &mut self,
         dmesg_fifo: Option<Box<dyn io::Write + Send>>,
         com1_sock_path: Option<String>,
-        ctx: &mut DeviceOpContext,
+        _ctx: &mut DeviceOpContext,
     ) -> std::result::Result<(), StartMicroVmError> {
         // Connect serial ports to the console and dmesg_fifo.
         self.set_guest_kernel_log_stream(dmesg_fifo)
             .map_err(|_| StartMicroVmError::EventFd)?;
 
         info!(self.logger, "init console path: {:?}", com1_sock_path);
-        match com1_sock_path {
-            Some(path) => {
-                if path == "None" {
-                    info!(
-                        ctx.logger(),
-                        "This token is used to create stdio console. (means not to create sock console)"
-                    );
-                } else if let Some(legacy_manager) = self.legacy_manager.as_ref() {
-                    let com1 = legacy_manager.get_com1_serial();
-                    self.con_manager
-                        .create_socket_console(com1, path)
-                        .map_err(StartMicroVmError::DeviceManager)?;
-                    return Ok(());
-                }
-            }
-            None => {}
+
+        if let some("None") = com1_sock_path {
+            info!(self.logger, "This token is used to create stdio console. (means not to create sock console)");
+        } else if let some(path) = com1_sock_path {
+            let com1 = legacy_manager.get_com1_serial();
+            self.con_manager
+                .create_socket_console(com1, path)
+                .map_err(StartMicroVmError::DeviceManager)?;
+            return Ok(());
         }
 
         if let Some(legacy_manager) = self.legacy_manager.as_ref() {
