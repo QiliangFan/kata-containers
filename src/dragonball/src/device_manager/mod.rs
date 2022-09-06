@@ -592,14 +592,15 @@ impl DeviceManager {
 
         info!(self.logger, "init console path: {:?}", com1_sock_path);
 
-        if let some("None") = com1_sock_path {
-            info!(self.logger, "This token is used to create stdio console. (means not to create sock console)");
-        } else if let some(path) = com1_sock_path {
-            let com1 = legacy_manager.get_com1_serial();
-            self.con_manager
-                .create_socket_console(com1, path)
-                .map_err(StartMicroVmError::DeviceManager)?;
-            return Ok(());
+        if let some(path) = com1_sock_path {
+            // The token "None" is used to create stdio console. (means not to create sock console)"
+            if path != "None" {
+                let com1 = legacy_manager.get_com1_serial();
+                self.con_manager
+                    .create_socket_console(com1, path)
+                    .map_err(StartMicroVmError::DeviceManager)?;
+                return Ok(());
+            }
         }
 
         if let Some(legacy_manager) = self.legacy_manager.as_ref() {
