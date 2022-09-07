@@ -43,8 +43,10 @@ use dbs_upcall::{
 };
 #[cfg(feature = "hotplug")]
 use dbs_virtio_devices::vsock::backend::VsockInnerConnector;
+use slog::error;
 
 use crate::address_space_manager::GuestAddressSpaceImpl;
+use crate::device_manager::console_manager::ConsoleManagerError;
 use crate::error::StartMicroVmError;
 use crate::resource_manager::ResourceManager;
 use crate::vm::{KernelConfigInfo, Vm};
@@ -593,13 +595,16 @@ impl DeviceManager {
         info!(self.logger, "init console path: {:?}", com1_sock_path);
 
         if let Some(legacy_manager) = self.legacy_manager.as_ref() {
-            let com1 = legacy_manager.get_com1_serial();
             if let Some(path) = com1_sock_path {
-                self.con_manager
-                    .create_socket_console(com1, path)
-                    .map_err(StartMicroVmError::DeviceManager)?;
+                if "stdio" != path {
+                    let com1 = legacy_manager.get_com1_serial();
+                    self.con_manager
+                        .create_socket_console(com1, path)
+                        .map_err(StartMicroVmError::DeviceManager)?;
+                    return Ok(());
+                }
             }
-        
+
             let com1 = legacy_manager.get_com1_serial();
             self.con_manager
                 .create_stdio_console(com1)
