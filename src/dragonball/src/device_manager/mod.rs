@@ -596,6 +596,7 @@ impl DeviceManager {
 
         if let Some(legacy_manager) = self.legacy_manager.as_ref() {
             if let Some(path) = com1_sock_path {
+                // Currently, the `com1_sock_path` "stdio" is only reserved for creating the stdio console
                 if "stdio" != path {
                     let com1 = legacy_manager.get_com1_serial();
                     self.con_manager
