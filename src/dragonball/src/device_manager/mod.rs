@@ -599,7 +599,6 @@ impl DeviceManager {
                 self.con_manager
                     .create_socket_console(com1, path)
                     .map_err(StartMicroVmError::DeviceManager)?;
-                return Ok(());
             }
         }
 
