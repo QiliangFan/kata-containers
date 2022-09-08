@@ -46,7 +46,6 @@ use dbs_virtio_devices::vsock::backend::VsockInnerConnector;
 use slog::error;
 
 use crate::address_space_manager::GuestAddressSpaceImpl;
-use crate::device_manager::console_manager::ConsoleManagerError;
 use crate::error::StartMicroVmError;
 use crate::resource_manager::ResourceManager;
 use crate::vm::{KernelConfigInfo, Vm};
